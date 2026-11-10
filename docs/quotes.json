@@ -1,0 +1,6 @@
+[
+  {"isin":"FR0011550185","ticker":"ESE","price":33.5541,"currency":"EUR","trade_timestamp":"2026-11-09T09:31:38.520673Z","update_timestamp":"2026-11-09T09:48:54.365156Z"},
+  {"isin":"FR0011550193","ticker":"ETZ","price":21.515,"currency":"EUR","trade_timestamp":"2026-11-09T09:31:39.309824Z","update_timestamp":"2026-11-09T09:48:54.365156Z"},
+  {"isin":"FR0013411980","ticker":"PTPXE","price":37.83,"currency":"EUR","trade_timestamp":"2026-11-09T09:29:04.814243Z","update_timestamp":"2026-11-09T09:48:54.365156Z"},
+  {"isin":"FR0013412020","ticker":"PAEEM","price":33.01,"currency":"EUR","trade_timestamp":"2026-11-09T09:31:45.042573Z","update_timestamp":"2026-11-09T09:48:54.365156Z"}
+]

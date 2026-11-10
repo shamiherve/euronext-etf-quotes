@@ -1,0 +1,49 @@
+name: Euronext ETF quotes
+on:
+  schedule:
+    - cron: '30 16 * * *'
+    - cron: '30 17 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['docs/quotes.json']
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: euronext-quotes
+  cancel-in-progress: false
+jobs:
+  quotes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate quote and calendar rules
+        run: python -m unittest -v test_quotes.py
+      - name: Download and validate delayed trades
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+        run: python update_quotes.py --scheduled-cron "$SCHEDULE"
+      - name: Preserve latest valid quotes in repository
+        run: |
+          if ! git diff --quiet -- docs/quotes.json; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add docs/quotes.json
+            git commit -m 'Update public Euronext delayed ETF quotes'
+            git push
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - uses: actions/deploy-pages@v4
+        id: deployment
