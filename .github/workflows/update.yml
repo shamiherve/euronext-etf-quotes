@@ -1,8 +1,12 @@
 name: Euronext ETF quotes
 on:
   schedule:
+    # Several slots after the 17:35 Paris close: GitHub may delay or drop cron runs by hours.
     - cron: '30 16 * * *'
     - cron: '30 17 * * *'
+    - cron: '15 19 * * *'
+    - cron: '15 21 * * *'
+    - cron: '15 4 * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -29,9 +33,7 @@ jobs:
       - name: Validate quote and calendar rules
         run: python -m unittest -v test_quotes.py
       - name: Download and validate delayed trades
-        env:
-          SCHEDULE: ${{ github.event.schedule }}
-        run: python update_quotes.py --scheduled-cron "$SCHEDULE"
+        run: python update_quotes.py --gated
       - name: Preserve latest valid quotes in repository
         run: |
           if ! git diff --quiet -- docs/quotes.json; then
@@ -39,6 +41,7 @@ jobs:
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add docs/quotes.json
             git commit -m 'Update public Euronext delayed ETF quotes'
+            git pull --rebase
             git push
           fi
       - uses: actions/configure-pages@v5

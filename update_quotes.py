@@ -7,7 +7,7 @@ import math
 import os
 from pathlib import Path
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
@@ -35,13 +35,14 @@ def stamp(value):
     return value.astimezone(timezone.utc).isoformat().replace('+00:00', 'Z')
 
 def should_run(now, scheduled_cron=''):
+    """Accept any trigger after the Paris close; GitHub often delays cron runs by hours."""
     local = now.astimezone(PARIS)
-    if local.year not in CLOSED:
+    if 9 <= local.hour < 18:
+        return False  # market session in progress: never publish intraday trades
+    session = local.date() if local.hour >= 18 else (local - timedelta(days=1)).date()
+    if session.year not in CLOSED:
         raise ValueError('Review official Euronext calendar for this year before scheduling')
-    if local.weekday() >= 5 or local.date().isoformat() in CLOSED[local.year]:
-        return False
-    expected = '30 16 * * *' if local.utcoffset().total_seconds() == 7200 else '30 17 * * *'
-    return scheduled_cron == expected and local.hour >= 18
+    return session.weekday() < 5 and session.isoformat() not in CLOSED[session.year]
 
 def download():
     request = Request(URL, headers={'User-Agent': 'euronext-etf-quotes/1.0 (daily delayed public data)', 'Accept': 'application/zip'})
@@ -173,10 +174,11 @@ def main():
     parser.add_argument('--output', type=Path, default=Path('docs/quotes.json'))
     parser.add_argument('--zip', type=Path)
     parser.add_argument('--scheduled-cron', default='')
+    parser.add_argument('--gated', action='store_true')
     args = parser.parse_args()
     now = datetime.now(timezone.utc)
-    if args.scheduled_cron and not should_run(now, args.scheduled_cron):
-        print('Skipped: alternate DST schedule, weekend or official Paris closure')
+    if (args.gated or args.scheduled_cron) and not should_run(now):
+        print('Skipped: market session in progress, weekend or official Paris closure')
         return
     update(args.output, (lambda: args.zip.read_bytes()) if args.zip else download, now)
 

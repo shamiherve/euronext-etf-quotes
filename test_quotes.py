@@ -72,18 +72,23 @@ class QuoteTests(unittest.TestCase):
             p=Path(d)/'q.json'
             with self.assertRaises(ValueError): update(p,lambda:archive([row()]),NOW)
             self.assertFalse(p.exists())
-    def test_winter_schedule(self):
-        self.assertTrue(should_run(datetime(2026,11,9,17,30,tzinfo=timezone.utc),'30 17 * * *'))
-        self.assertFalse(should_run(datetime(2026,11,9,16,30,tzinfo=timezone.utc),'30 16 * * *'))
-    def test_summer_schedule(self):
-        self.assertTrue(should_run(datetime(2026,7,1,16,30,tzinfo=timezone.utc),'30 16 * * *'))
-        self.assertFalse(should_run(datetime(2026,7,1,17,30,tzinfo=timezone.utc),'30 17 * * *'))
+    def test_after_close_any_delay(self):
+        for h in [17,19,22,23]:
+            self.assertTrue(should_run(datetime(2026,11,11,h,35,tzinfo=timezone.utc)))
+        self.assertTrue(should_run(datetime(2026,7,1,16,30,tzinfo=timezone.utc)))
+    def test_late_run_after_midnight_counts_for_previous_session(self):
+        self.assertTrue(should_run(datetime(2026,11,11,23,35,tzinfo=timezone.utc)))
+        self.assertTrue(should_run(datetime(2026,11,12,5,0,tzinfo=timezone.utc)))
+        self.assertFalse(should_run(datetime(2026,11,9,0,30,tzinfo=timezone.utc)))
+    def test_never_intraday(self):
+        self.assertFalse(should_run(datetime(2026,11,12,11,0,tzinfo=timezone.utc)))
+        self.assertFalse(should_run(datetime(2026,7,1,15,30,tzinfo=timezone.utc)))
     def test_weekend_and_verified_closures(self):
         for date in [(2026,11,8),(2026,12,25),(2027,3,26),(2027,3,29)]:
-            self.assertFalse(should_run(datetime(*date,18,tzinfo=timezone.utc),'30 17 * * *'))
+            self.assertFalse(should_run(datetime(*date,18,tzinfo=timezone.utc)))
     def test_half_day_and_french_holiday_market_open(self):
-        self.assertTrue(should_run(datetime(2026,12,24,17,30,tzinfo=timezone.utc),'30 17 * * *'))
-        self.assertTrue(should_run(datetime(2026,11,11,17,30,tzinfo=timezone.utc),'30 17 * * *'))
+        self.assertTrue(should_run(datetime(2026,12,24,17,30,tzinfo=timezone.utc)))
+        self.assertTrue(should_run(datetime(2026,11,11,17,30,tzinfo=timezone.utc)))
     def test_unknown_calendar_year_fails_closed(self):
         with self.assertRaises(ValueError): should_run(datetime(2028,1,3,18,tzinfo=timezone.utc),'30 17 * * *')
     def test_conflicting_same_timestamp_not_guessed(self):
