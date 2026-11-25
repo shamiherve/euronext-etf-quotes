@@ -2,33 +2,33 @@
   {
     "isin": "FR0011550185",
     "ticker": "ESE",
-    "price": 33.1395,
+    "price": 32.4222,
     "currency": "EUR",
-    "trade_timestamp": "2026-11-24T16:35:26.806539Z",
-    "update_timestamp": "2026-11-24T20:41:43.693864Z"
+    "trade_timestamp": "2026-11-25T16:39:01.796248Z",
+    "update_timestamp": "2026-11-25T22:23:13.603906Z"
   },
   {
     "isin": "FR0011550193",
     "ticker": "ETZ",
-    "price": 20.92,
+    "price": 20.695,
     "currency": "EUR",
-    "trade_timestamp": "2026-11-24T16:35:18.274384Z",
-    "update_timestamp": "2026-11-24T20:41:43.693864Z"
+    "trade_timestamp": "2026-11-25T16:35:01.799646Z",
+    "update_timestamp": "2026-11-25T22:23:13.603906Z"
   },
   {
     "isin": "FR0013411980",
     "ticker": "PTPXE",
-    "price": 37.315,
+    "price": 37.045,
     "currency": "EUR",
-    "trade_timestamp": "2026-11-24T16:35:04.525411Z",
-    "update_timestamp": "2026-11-24T20:41:43.693864Z"
+    "trade_timestamp": "2026-11-25T16:35:20.882757Z",
+    "update_timestamp": "2026-11-25T22:23:13.603906Z"
   },
   {
     "isin": "FR0013412020",
     "ticker": "PAEEM",
-    "price": 31.91,
+    "price": 30.87,
     "currency": "EUR",
-    "trade_timestamp": "2026-11-24T16:35:19.255818Z",
-    "update_timestamp": "2026-11-24T20:41:43.693864Z"
+    "trade_timestamp": "2026-11-25T16:35:01.028421Z",
+    "update_timestamp": "2026-11-25T22:23:13.603906Z"
   }
 ]
