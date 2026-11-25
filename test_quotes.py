@@ -57,11 +57,32 @@ class QuoteTests(unittest.TestCase):
             path=Path(d)/'quotes.json'; update(path,lambda:archive([row(i) for i in INSTRUMENTS]),NOW); before=path.read_bytes()
             with self.assertRaises(zipfile.BadZipFile): update(path,lambda:b'bad zip',NOW)
             self.assertEqual(path.read_bytes(),before)
-    def test_partial_update_keeps_missing_quote(self):
+    def test_partial_update_preserves_all_previous_quotes(self):
         with tempfile.TemporaryDirectory() as d:
-            p=Path(d)/'q.json'; old=update(p,lambda:archive([row(i) for i in INSTRUMENTS]),NOW)
-            result=update(p,lambda:archive([row(MifidPrice='35',TradingDateTime='2026-11-09T16:36:00Z',PublicationDateTime='2026-11-09T16:36:01Z')]),NOW)
-            self.assertEqual(result[0]['price'],35); self.assertEqual(result[1:],old[1:])
+            p = Path(d) / 'q.json'
+
+            old = update(
+                p,
+                lambda: archive([row(i) for i in INSTRUMENTS]),
+                NOW
+            )
+
+            before = p.read_bytes()
+
+            result = update(
+                p,
+                lambda: archive([
+                    row(
+                        MifidPrice='35',
+                        TradingDateTime='2026-11-09T16:36:00Z',
+                        PublicationDateTime='2026-11-09T16:36:01Z'
+                    )
+                ]),
+                NOW
+            )
+
+            self.assertEqual(result, old)
+            self.assertEqual(p.read_bytes(), before)
     def test_stale_download_does_not_advance_timestamp(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/'q.json'; update(p,lambda:archive([row(i) for i in INSTRUMENTS]),NOW); before=p.read_bytes()
